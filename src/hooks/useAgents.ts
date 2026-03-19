@@ -14,10 +14,7 @@ export interface AgentBalance {
   virtual: number;
   currency: string;
 }
-
-/**
- * Hook to retrieve all provisioned AI Agents.
- */
+;;;
 export const useAgents = () => {
   return useQuery<Agent[]>(() => apiClient.get('/agents'));
 };
@@ -39,7 +36,7 @@ export interface CreateAgentPayload {
  * Hook to provision a new agent securely via the robust X402 settlement backend.
  */
 export const useCreateAgent = () => {
-  return useMutation<CreateAgentPayload, Agent>((data) => 
+  return useMutation<CreateAgentPayload, Agent>((data) =>
     apiClient.post('/agents', data)
   );
 };
@@ -60,7 +57,7 @@ export interface SpendResponse {
  * Hook allowing an agent to request a deterministic spend authorization.
  */
 export const useRequestSpend = (id: string) => {
-  return useMutation<SpendPayload, SpendResponse>((data) => 
+  return useMutation<SpendPayload, SpendResponse>((data) =>
     apiClient.post(`/agents/${id}/spend`, data)
   );
 };

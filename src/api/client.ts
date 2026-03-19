@@ -17,6 +17,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
   const data = isJson ? await response.json() : await response.text();
 
   if (!response.ok) {
+    if (response.status === 401) {
+      // Auto-logout user if token expires natively via localStorage removal
+      localStorage.removeItem('auton_token');
+      localStorage.removeItem('auton_user');
+      window.location.href = '/login';
+    }
+    
     throw new ApiError(
       response.status,
       data?.error || data?.message || response.statusText,
@@ -26,6 +33,11 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
   return data as T;
 }
+
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('auton_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+};
 
 export const apiClient = {
   get: async <T>(endpoint: string, params?: Record<string, string>): Promise<T> => {
@@ -38,6 +50,7 @@ export const apiClient = {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        ...getAuthHeaders()
       },
     });
     return handleResponse<T>(response);
@@ -49,6 +62,7 @@ export const apiClient = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: body ? JSON.stringify(body) : undefined,
     });
@@ -61,6 +75,7 @@ export const apiClient = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        ...getAuthHeaders()
       },
       body: body ? JSON.stringify(body) : undefined,
     });
@@ -72,6 +87,7 @@ export const apiClient = {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
+        ...getAuthHeaders()
       },
     });
     return handleResponse<T>(response);

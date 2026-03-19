@@ -26,7 +26,7 @@ export interface RegisterWebhookPayload {
  * Hook to register a new listener URL.
  */
 export const useRegisterWebhook = () => {
-  return useMutation<RegisterWebhookPayload, Webhook>((data) => 
+  return useMutation<RegisterWebhookPayload, Webhook>((data) =>
     apiClient.post('/webhooks', data)
   );
 };
