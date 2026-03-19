@@ -1,9 +1,12 @@
 import React from 'react';
-import { Search, Bell, Settings, HelpCircle, Plus } from 'lucide-react';
+import { Search, Bell, Settings, Plus, LogOut } from 'lucide-react';
 import { Button } from './Button';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 export const Header: React.FC = () => {
+  const { logout, user } = useAuth();
+
   return (
     <header className="auton-header">
       <div className="header-search">
@@ -24,15 +27,15 @@ export const Header: React.FC = () => {
             <span className="notification-dot"></span>
           </button>
           <button className="icon-btn"><Settings size={18} /></button>
-          <button className="icon-btn"><HelpCircle size={18} /></button>
+          <button className="icon-btn" onClick={logout} title="Secure Log Out"><LogOut size={18} color="#ef4444" /></button>
         </div>
 
         <div className="user-profile">
           <div className="avatar">
-            <img src="https://ui-avatars.com/api/?name=Auton+Dev&background=2962ff&color=fff" alt="User Avatar" />
+            <img src={`https://ui-avatars.com/api/?name=${user?.name?.replace(' ', '+') || 'Auton+Dev'}&background=2962ff&color=fff`} alt="User Avatar" />
           </div>
           <div className="user-info">
-            <span className="user-name">Auton Dev</span>
+            <span className="user-name">{user?.name || 'Auton Dev'}</span>
             <span className="user-role">Admin</span>
           </div>
         </div>
