@@ -1,0 +1,41 @@
+.auton-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.auton-card.no-padding {
+  padding: 0;
+}
+
+.card-default {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card-default:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+.card-glow {
+  box-shadow: 0 8px 32px 0 var(--card-glow);
+  border-color: rgba(41, 98, 255, 0.2);
+}
+
+.card-glow::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-teal));
+}
+
+.card-transparent {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
