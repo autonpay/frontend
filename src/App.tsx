@@ -9,7 +9,6 @@ import { Rules } from './pages/Rules';
 import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 
-// A quick helper to redirect authenticated users away from the login page
 const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
   if (isAuthenticated) {
@@ -37,7 +36,7 @@ function App() {
               <Route path="rules" element={<Rules />} />
               <Route path="settings" element={<Settings />} />
               <Route path="*" element={
-                <div style={{color: '#0f172a', padding: '40px', fontSize: '20px', fontWeight: 600}}>
+                <div style={{ color: '#0f172a', padding: '40px', fontSize: '20px', fontWeight: 600 }}>
                   ⚙️ Feature set for this route is coming soon.
                 </div>
               } />
