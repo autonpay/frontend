@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Button } from '../components/Button';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { Button } from '../../components/Button';
+import { useLogin } from '../../hooks/useAuth';
 import { 
   Network, 
   Eye, 
@@ -15,13 +16,13 @@ import {
   Globe, 
   TerminalSquare 
 } from 'lucide-react';
-import './Login.css';
+import './Auth.css';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { mutateAsync: loginUser, isPending: loading } = useLogin();
   
   // Carousel State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -56,18 +57,17 @@ export const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    setTimeout(() => {
-      login('mock_jwt_token_123', { 
-        id: 'usr_live_9x81', 
-        email, 
-        name: 'Admin Persona' 
-      });
-      
-      const from = (location.state as any)?.from?.pathname || '/';
-      navigate(from, { replace: true });
-    }, 850);
+    try {
+      const response = await loginUser({ email, password });
+      if (response.success) {
+        login(response.data.token, response.data.user);
+        const from = (location.state as any)?.from?.pathname || '/';
+        navigate(from, { replace: true });
+      }
+    } catch (err) {
+      console.error('Login failed:', err);
+      // Errors are handled globally by TanStack Query + Sonner
+    }
   };
 
   return (
@@ -137,7 +137,7 @@ export const Login: React.FC = () => {
              </Button>
 
              <div className="register-prompt">
-               Don't have an operating account? <a href="#">Contact Sales</a>
+               Don't have an operating account? <Link to="/register">Register</Link>
              </div>
           </form>
 
@@ -161,7 +161,6 @@ export const Login: React.FC = () => {
         <div className="brand-showcase-wrapper">
           <div className="carousel-track" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
             
-            {/* SLIDE 1: Corporate Spend */}
             <div className="carousel-slide">
               <div className="showcase-visuals">
                 <div className="mock-panel mock-card-visual">
@@ -181,7 +180,6 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* SLIDE 2: Authorization Engines */}
             <div className="carousel-slide">
               <div className="showcase-visuals">
                  <div className="mock-panel panel-center">
@@ -203,7 +201,6 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* SLIDE 3: Automated Reconciliation */}
             <div className="carousel-slide">
               <div className="showcase-visuals">
                 <div className="mock-panel sync-panel">
@@ -232,7 +229,6 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* SLIDE 4: Global Payouts */}
             <div className="carousel-slide">
               <div className="showcase-visuals">
                 <div className="mock-panel fx-panel">
@@ -257,7 +253,6 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* SLIDE 5: API First */}
             <div className="carousel-slide">
               <div className="showcase-visuals">
                  <div className="mock-panel code-panel">
@@ -283,7 +278,6 @@ export const Login: React.FC = () => {
 
           </div>
 
-          {/* Persistent Dot Navigation */}
           <div className="carousel-dots">
             {[0, 1, 2, 3, 4].map((idx) => (
               <button 

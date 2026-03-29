@@ -1,69 +1,23 @@
 import React from 'react';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
-import { Filter, Download, ArrowUpRight, Search, FileText, CreditCard, Link } from 'lucide-react';
+import { Card } from '../../components/Card';
+import { Badge } from '../../components/Badge';
+import { Button } from '../../components/Button';
+import { useTransactions } from '../../hooks/useTransactions';
+import { 
+  ArrowUpRight, 
+  Search, 
+  Filter, 
+  Download, 
+  FileText,
+  Link,
+  CreditCard
+} from 'lucide-react';
 import './Transactions.css';
 
-const transactionsData = [
-  {
-    id: 'tx_98f21a',
-    date: 'Oct 24, 2026',
-    agent: 'Cloud Infrastructure',
-    merchant: 'AWS Web Services',
-    amount: 1450.00,
-    currency: 'USDC',
-    source: 'onchain',
-    status: 'settled',
-    rule: 'AWS Whitelist'
-  },
-  {
-    id: 'tx_77b49c',
-    date: 'Oct 24, 2026',
-    agent: 'Marketing Ad Spender',
-    merchant: 'X Ads',
-    amount: 45.00,
-    currency: 'USD',
-    source: 'virtual_card',
-    status: 'settled',
-    rule: 'Daily Limit'
-  },
-  {
-    id: 'tx_44v99k',
-    date: 'Oct 23, 2026',
-    agent: 'OpenAI API Sync',
-    merchant: 'OpenAI',
-    amount: 512.40,
-    currency: 'USD',
-    source: 'virtual_card',
-    status: 'pending',
-    rule: 'Velocity Check'
-  },
-  {
-    id: 'tx_21z88m',
-    date: 'Oct 23, 2026',
-    agent: 'Design Subscriptions',
-    merchant: 'Midjourney',
-    amount: 60.00,
-    currency: 'USDC',
-    source: 'onchain',
-    status: 'rejected',
-    rule: 'Insufficient Balance'
-  },
-  {
-    id: 'tx_99q11b',
-    date: 'Oct 22, 2026',
-    agent: 'Freelancer Payments',
-    merchant: '0x8f...39aB',
-    amount: 2500.00,
-    currency: 'USDC',
-    source: 'onchain',
-    status: 'settled',
-    rule: 'Approval Over $500'
-  }
-];
-
 export const Transactions: React.FC = () => {
+  const { data: txQuery, isLoading } = useTransactions();
+  const transactions = txQuery?.data || [];
+
   return (
     <div className="transactions-container">
       <div className="transactions-header">
@@ -95,7 +49,6 @@ export const Transactions: React.FC = () => {
               <tr>
                 <th>Transaction ID</th>
                 <th>Date</th>
-                <th>Initiated By</th>
                 <th>Destination / Merchant</th>
                 <th>Source</th>
                 <th>Amount</th>
@@ -104,17 +57,20 @@ export const Transactions: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {transactionsData.map(tx => (
+              {isLoading && transactions.length === 0 && (
+                <tr>
+                   <td colSpan={7} className="loading-row">Syncing transactions from ledger...</td>
+                </tr>
+              )}
+              {transactions.map(tx => (
                 <tr key={tx.id}>
                   <td className="tx-id">
                     <FileText size={14} className="icon-muted" />
-                    {tx.id}
+                    {tx.id.substring(0, 8)}...
                   </td>
-                  <td className="tx-date">{tx.date}</td>
-                  <td className="tx-agent">{tx.agent}</td>
+                  <td className="tx-date">{new Date(tx.date).toLocaleDateString()}</td>
                   <td className="tx-merchant">
                     <span className="merchant-name">{tx.merchant}</span>
-                    <span className="tx-rule" title="Triggered Rule">↳ {tx.rule}</span>
                   </td>
                   <td>
                     {tx.source === 'onchain' ? (
@@ -141,12 +97,17 @@ export const Transactions: React.FC = () => {
                   </td>
                 </tr>
               ))}
+              {transactions.length === 0 && !isLoading && (
+                <tr>
+                   <td colSpan={7} className="empty-row">No transactions found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
         
         <div className="transactions-footer">
-          <span className="results-count">Showing 5 of 142 transactions</span>
+          <span className="results-count">Showing {transactions.length} transactions</span>
           <div className="pagination">
             <Button variant="outline" size="sm" disabled>Previous</Button>
             <Button variant="outline" size="sm">Next</Button>

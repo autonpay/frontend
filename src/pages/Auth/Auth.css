@@ -179,6 +179,40 @@
   text-decoration: underline;
 }
 
+.password-guidance {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.criteria {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.criteria.met {
+  color: #10b981;
+}
+
+.error-message {
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .login-footer-links {
   margin-top: 64px;
   display: flex;

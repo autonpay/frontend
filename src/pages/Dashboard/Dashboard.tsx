@@ -1,9 +1,10 @@
 import React from 'react';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
+import { Card } from '../../components/Card';
+import { Badge } from '../../components/Badge';
+import { Button } from '../../components/Button';
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
 import { ArrowUpRight, Zap, Target, Lock, PlayCircle, Plus, Settings } from 'lucide-react';
+import { useAgents } from '../../hooks/useAgents';
 import './Dashboard.css';
 
 const performanceData = [
@@ -16,14 +17,10 @@ const performanceData = [
   { name: 'Sun', value: 6810 }
 ];
 
-const agentsData = [
-  { id: 'agt_a15f', name: 'OpenAI API Sync', status: 'active', limit: '$500', spent: 102.24, trend: 'up', ret: 3.02 },
-  { id: 'agt_b22p', name: 'AWS Compute', status: 'active', limit: '$2,000', spent: 248.16, trend: 'up', ret: 0.16 },
-  { id: 'agt_x89l', name: 'Midjourney Sub', status: 'paused', limit: '$60', spent: 60.00, trend: 'down', ret: -3.21 },
-  { id: 'agt_v44c', name: 'Marketing Ads', status: 'active', limit: '$1,500', spent: 854.30, trend: 'up', ret: 15.42 }
-];
-
 export const Dashboard: React.FC = () => {
+  const { data: agentsQuery, isLoading } = useAgents();
+  const agents = agentsQuery?.data || [];
+
   return (
     <div className="dashboard-container">
       {/* Top Title */}
@@ -64,7 +61,7 @@ export const Dashboard: React.FC = () => {
               </Card>
               <Card variant="transparent" className="stat-card">
                  <div className="stat-label">Active Agents</div>
-                 <div className="stat-val">12</div>
+                 <div className="stat-val">{agents.length}</div>
               </Card>
               <Card variant="transparent" className="stat-card">
                  <div className="stat-label">Pending Approvals</div>
@@ -118,13 +115,19 @@ export const Dashboard: React.FC = () => {
                        <th>ID</th>
                      <th>Status</th>
                      <th>Limit</th>
-                     <th>Spent</th>
-                     <th>7d Change</th>
+                     <th>Balance</th>
                      <th>Actions</th>
                    </tr>
                  </thead>
                  <tbody>
-                   {agentsData.map(agent => (
+                    {isLoading && agents.length === 0 && (
+                      <tr>
+                        <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
+                          Syncing agents from ledger...
+                        </td>
+                      </tr>
+                    )}
+                   {agents.map(agent => (
                      <tr key={agent.id}>
                        <td className="agent-name">
                          <Target size={16} className="table-icon" />
@@ -136,16 +139,20 @@ export const Dashboard: React.FC = () => {
                            {agent.status}
                          </Badge>
                        </td>
-                       <td>{agent.limit}</td>
-                       <td>${agent.spent.toFixed(2)}</td>
-                       <td className={agent.trend === 'up' ? 'text-positive' : 'text-danger'}>
-                         {agent.trend === 'up' ? '+' : ''}{agent.ret}%
-                       </td>
+                       <td>{agent.limit || 'No Limit'}</td>
+                       <td>{agent.balance || '$0.00'}</td>
                        <td>
                          <Button variant="primary" size="sm"><Settings size={14}/> Manage</Button>
                        </td>
                      </tr>
                    ))}
+                   {!isLoading && agents.length === 0 && (
+                     <tr>
+                        <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
+                          No agents found.
+                        </td>
+                     </tr>
+                   )}
                  </tbody>
                  </table>
                </div>

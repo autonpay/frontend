@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
+import { Card } from '../../components/Card';
+import { Badge } from '../../components/Badge';
+import { Button } from '../../components/Button';
 import { 
   Plus, 
   Shield, 
@@ -93,7 +93,7 @@ export const Rules: React.FC = () => {
                 <div className="rule-item-header">
                   <div className="rule-title-group">
                     <div className="rule-icon-bg">
-                      {rule.icon}
+                       {rule.icon}
                     </div>
                     <div>
                       <h3>{rule.name}</h3>

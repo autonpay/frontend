@@ -1,62 +1,21 @@
 import React from 'react';
-import { Card } from '../components/Card';
-import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
-import { Bot, Plus, Target, ShieldCheck, MoreVertical } from 'lucide-react';
+import { Card } from '../../components/Card';
+import { Badge } from '../../components/Badge';
+import { Button } from '../../components/Button';
+import { useAgents } from '../../hooks/useAgents';
+import { 
+  Plus, 
+  MoreVertical, 
+  Target, 
+  ShieldCheck,
+  Bot
+} from 'lucide-react';
 import './Agents.css';
 
-const agentsData = [
-  { 
-    id: 'agt_a15f', 
-    name: 'OpenAI API Sync', 
-    status: 'active', 
-    limit: '$500/mo', 
-    balance: '$397.76',
-    rules: ['OpenAI Only', 'Velocity < 10/min']
-  },
-  { 
-    id: 'agt_b22p', 
-    name: 'AWS Compute Builder', 
-    status: 'active', 
-    limit: '$2,000/mo', 
-    balance: '$1,751.84',
-    rules: ['AWS Whitelist', 'Approval > $500']
-  },
-  { 
-    id: 'agt_x89l', 
-    name: 'Midjourney Design Bot', 
-    status: 'paused', 
-    limit: '$60/mo', 
-    balance: '$0.00',
-    rules: ['Subscription Only']
-  },
-  { 
-    id: 'agt_v44c', 
-    name: 'Marketing Ad Spender', 
-    status: 'active', 
-    limit: '$1,500/mo', 
-    balance: '$645.70',
-    rules: ['Google Ads', 'Meta Ads', 'Max $100/day']
-  },
-  { 
-    id: 'agt_c91z', 
-    name: 'Github Copilot Seats', 
-    status: 'active', 
-    limit: '$200/mo', 
-    balance: '$160.00',
-    rules: ['GitHub Only']
-  },
-  { 
-    id: 'agt_d33m', 
-    name: 'Discord Tip Bot', 
-    status: 'active', 
-    limit: '$100/mo', 
-    balance: '$18.50',
-    rules: ['Max $5/txn', 'Crypto Only']
-  }
-];
-
 export const Agents: React.FC = () => {
+  const { data: agentsQuery, isLoading } = useAgents();
+  const agents = agentsQuery?.data || [];
+
   return (
     <div className="agents-container">
       <div className="agents-header">
@@ -70,7 +29,8 @@ export const Agents: React.FC = () => {
       </div>
 
       <div className="agents-grid">
-        {agentsData.map(agent => (
+        {isLoading && agents.length === 0 && <div className="loading-state">Syncing agents from ledger...</div>}
+        {agents.map(agent => (
           <Card key={agent.id} className="agent-card">
             <div className="agent-card-header">
               <div className="agent-icon-bg">
@@ -89,11 +49,11 @@ export const Agents: React.FC = () => {
             <div className="agent-metrics">
               <div className="metric">
                 <span className="metric-label">Balance</span>
-                <span className="metric-val">{agent.balance}</span>
+                <span className="metric-val">{agent.balance || '$0.00'}</span>
               </div>
               <div className="metric">
                 <span className="metric-label">Limit</span>
-                <span className="metric-val">{agent.limit}</span>
+                <span className="metric-val">{agent.limit || 'No Limit'}</span>
               </div>
             </div>
 
@@ -102,9 +62,9 @@ export const Agents: React.FC = () => {
                 <ShieldCheck size={14} /> Active Rules
               </div>
               <div className="rules-badges">
-                {agent.rules.map((rule, idx) => (
+                {agent.metadata?.rules?.map((rule: string, idx: number) => (
                   <span key={idx} className="rule-pill">{rule}</span>
-                ))}
+                )) || <span className="no-rules">No rules active</span>}
               </div>
             </div>
 
@@ -116,6 +76,9 @@ export const Agents: React.FC = () => {
             </div>
           </Card>
         ))}
+        {agents.length === 0 && !isLoading && (
+          <div className="empty-state">No agents found. Create one to get started.</div>
+        )}
       </div>
     </div>
   );
