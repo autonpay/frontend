@@ -1,14 +1,19 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiClient } from '../api/client';
 
 export interface User {
   id: string;
   email: string;
   name: string;
+  organizationName: string;
+  organizationId: string;
+  role: string;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  loading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -18,27 +23,49 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('auton_token'));
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('auton_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(!!token);
+
+  useEffect(() => {
+    const validateSession = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await apiClient.get<{ success: boolean; data: User }>('/auth/me');
+        if (response.success) {
+          setUser(response.data);
+        } else {
+          logout();
+        }
+      } catch (error) {
+        console.error('Session validation failed:', error);
+        logout();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    validateSession();
+  }, [token]);
 
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('auton_token', newToken);
-    localStorage.setItem('auton_user', JSON.stringify(newUser));
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('auton_token');
-    localStorage.removeItem('auton_user');
+    window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, isAuthenticated: !!token && !!user }}>
       {children}
     </AuthContext.Provider>
   );
