@@ -1,5 +1,5 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import { useQuery, useMutation } from './useQuery';
 
 export interface Rule {
   id: string;
@@ -12,10 +12,14 @@ export interface Rule {
 }
 
 /**
- * Hook to retrieve all active and disabled spend logic gates.
+ * Hook to retrieve all active and disabled spend logic gates via TanStack Query.
  */
 export const useRules = () => {
-  return useQuery<Rule[]>(() => apiClient.get('/rules'));
+  return useQuery({
+    queryKey: ['rules'],
+    queryFn: () => apiClient.get<{ success: boolean; data: Rule[] }>('/rules'),
+    meta: { errorMessage: 'Failed to fetch business rules.' }
+  });
 };
 
 export interface CreateRulePayload {
@@ -30,7 +34,18 @@ export interface CreateRulePayload {
  * Hook to inject deterministic business rules into the Auton engine.
  */
 export const useCreateRule = () => {
-  return useMutation<CreateRulePayload, Rule>((data) => 
-    apiClient.post('/rules', data)
-  );
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateRulePayload) => 
+      apiClient.post<{ success: boolean; data: Rule }>('/rules', data),
+    meta: {
+      successMessage: 'Business rule deployed to engine.',
+      errorMessage: 'Rule validation failed.'
+    },
+    onSuccess: () => {
+      // Refresh the rules list instantly
+      queryClient.invalidateQueries({ queryKey: ['rules'] });
+    },
+  });
 };

@@ -1,5 +1,5 @@
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import { useQuery } from './useQuery';
 
 export interface Transaction {
   id: string;
@@ -10,27 +10,24 @@ export interface Transaction {
   amount: number;
   currency: string;
   status: 'settled' | 'pending' | 'rejected';
-  triggered_rules?: string[]; // IDs of rules that fired
+  triggered_rules?: string[];
 }
 
 /**
- * Hook to poll the central transaction ledger.
- * Supports arbitrary optional query filters.
+ * Transaction Ledger Hooks via TanStack Query
  */
+
 export const useTransactions = (filters?: Record<string, string>) => {
-  return useQuery<Transaction[]>(
-    () => apiClient.get('/transactions', filters),
-    // Refresh query when filters mathematically change
-    [filters ? JSON.stringify(filters) : 'no-filters']
-  );
+  return useQuery({
+    queryKey: ['transactions', filters],
+    queryFn: () => apiClient.get<{ success: boolean; data: Transaction[] }>('/transactions', filters),
+  });
 };
 
-/**
- * Hook to fetch the deeply nested details of a single transaction settlement.
- */
 export const useTransactionDetails = (txId: string) => {
-  return useQuery<Transaction>(
-    () => apiClient.get(`/transactions/${txId}`),
-    [txId]
-  );
+  return useQuery({
+    queryKey: ['transactions', txId],
+    queryFn: () => apiClient.get<{ success: boolean; data: Transaction }>(`/transactions/${txId}`),
+    enabled: !!txId,
+  });
 };

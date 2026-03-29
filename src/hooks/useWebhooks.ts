@@ -1,5 +1,5 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import { useQuery, useMutation } from './useQuery';
 
 export interface Webhook {
   id: string;
@@ -11,10 +11,14 @@ export interface Webhook {
 }
 
 /**
- * Hook to fetch registered endpoints from the Developer Settings.
+ * Webhook Infrastructure Hooks via TanStack Query
  */
+
 export const useWebhooks = () => {
-  return useQuery<Webhook[]>(() => apiClient.get('/webhooks'));
+  return useQuery({
+    queryKey: ['webhooks'],
+    queryFn: () => apiClient.get<{ success: boolean; data: Webhook[] }>('/webhooks'),
+  });
 };
 
 export interface RegisterWebhookPayload {
@@ -22,17 +26,30 @@ export interface RegisterWebhookPayload {
   events: string[];
 }
 
-/**
- * Hook to register a new listener URL.
- */
 export const useRegisterWebhook = () => {
-  return useMutation<RegisterWebhookPayload, Webhook>((data) =>
-    apiClient.post('/webhooks', data)
-  );
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: RegisterWebhookPayload) => 
+      apiClient.post<{ success: boolean; data: Webhook }>('/webhooks', data),
+    meta: {
+      successMessage: 'Infrastructure endpoint registered.',
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+    },
+  });
 };
 
 export const useDeleteWebhook = () => {
-  return useMutation<{ id: string }, { success: boolean }>((data) =>
-    apiClient.delete(`/webhooks/${data.id}`)
-  );
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { id: string }) => 
+      apiClient.delete<{ success: boolean; message: string }>(`/webhooks/${data.id}`),
+    meta: {
+      successMessage: 'Endpoint decommissioned.',
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+    },
+  });
 };
