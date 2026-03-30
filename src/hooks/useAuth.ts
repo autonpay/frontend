@@ -47,6 +47,7 @@ export const useLogin = () => {
     mutationFn: (payload: LoginPayload) => apiClient.post<AuthResponse>('/auth/login', payload),
     meta: {
       successMessage: 'Welcome back! Terminal session active.',
+      errorMessage: 'Authentication failed. Please check your credentials.'
     },
   });
 };
@@ -56,6 +57,7 @@ export const useRegister = () => {
     mutationFn: (payload: RegisterPayload) => apiClient.post<AuthResponse>('/auth/register', payload),
     meta: {
       successMessage: 'Organization registered. Bootstrapping workspace...',
+      errorMessage: 'Registration failed. Email might already be in use.'
     },
   });
 };
