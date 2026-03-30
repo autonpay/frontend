@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { CreateAgentModal } from './CreateAgentModal';
 import { Card } from '../../components/Card';
 import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
@@ -13,6 +14,7 @@ import {
 import './Agents.css';
 
 export const Agents: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: agentsQuery, isLoading } = useAgents();
   const agents = agentsQuery?.data || [];
 
@@ -24,12 +26,36 @@ export const Agents: React.FC = () => {
           <span className="subtitle">Manage instantiated agents, their wallets, and spending guardrails.</span>
         </div>
         <div className="header-actions">
-           <Button variant="primary" size="md"><Plus size={16} /> Create Agent</Button>
+           <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
+             <Plus size={16} /> Create Agent
+           </Button>
         </div>
       </div>
 
       <div className="agents-grid">
-        {isLoading && agents.length === 0 && <div className="loading-state">Syncing agents from ledger...</div>}
+        {isLoading && agents.length === 0 && (
+          <>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i} className="agent-card skeleton-card">
+                <div className="agent-card-header">
+                  <div className="skeleton-icon shimmer" />
+                </div>
+                <div className="agent-info">
+                  <div className="skeleton-text title shimmer" />
+                  <div className="skeleton-text subtitle shimmer" />
+                </div>
+                <div className="skeleton-metrics shimmer" />
+                <div className="agent-rules">
+                  <div className="skeleton-text subtitle shimmer" style={{ width: '30%' }} />
+                </div>
+                <div className="agent-footer">
+                   <div className="skeleton-text subtitle shimmer" style={{ width: '20%', margin: 0 }} />
+                   <div className="skeleton-text subtitle shimmer" style={{ width: '30%', margin: 0 }} />
+                </div>
+              </Card>
+            ))}
+          </>
+        )}
         {agents.map(agent => (
           <Card key={agent.id} className="agent-card">
             <div className="agent-card-header">
@@ -80,6 +106,11 @@ export const Agents: React.FC = () => {
           <div className="empty-state">No agents found. Create one to get started.</div>
         )}
       </div>
+
+      <CreateAgentModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };

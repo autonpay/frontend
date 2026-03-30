@@ -151,3 +151,62 @@
     gap: 16px;
   }
 }
+
+/* Skeleton Loading States */
+.skeleton-card {
+  pointer-events: none;
+}
+
+.skeleton-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--skeleton-bg, #f1f5f9);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-text {
+  height: 18px;
+  background: var(--skeleton-bg, #f1f5f9);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-text.title { width: 60%; height: 20px; }
+.skeleton-text.subtitle { width: 40%; height: 14px; }
+
+.skeleton-metrics {
+  height: 70px;
+  background: var(--skeleton-bg, #f1f5f9);
+  border-radius: 8px;
+  margin: 16px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
