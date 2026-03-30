@@ -42,8 +42,9 @@ instance.interceptors.response.use(
     if (error.response) {
       const { status, data }: { status: number, data: any } = error.response;
       
-      // Auto-logout user if token expires
-      if (status === 401) {
+      // Auto-logout user if token expires (ignore for login/register pages)
+      const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+      if (status === 401 && !isAuthPage) {
         localStorage.removeItem('auton_token');
         localStorage.removeItem('auton_user');
         window.location.href = '/login';
