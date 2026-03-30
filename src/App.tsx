@@ -67,6 +67,7 @@ function App() {
         position="top-right" 
         expand={false} 
         richColors 
+        visibleToasts={5}
         toastOptions={{
           style: {
             background: 'var(--card-bg)',
