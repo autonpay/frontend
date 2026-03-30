@@ -5,7 +5,10 @@ export interface Agent {
   id: string;
   name: string;
   status: 'active' | 'suspended';
-  created_at: string;
+  createdAt: string;
+  updatedAt: string;
+  description?: string;
+  walletAddress?: string;
   balance?: string;
   limit?: string;
   metadata?: Record<string, any>;
@@ -37,6 +40,7 @@ export const useAgentBalance = (id: string) => {
 
 export interface CreateAgentPayload {
   name: string;
+  description?: string;
   metadata?: Record<string, any>;
 }
 
