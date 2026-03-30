@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '../../components/Card';
 import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
 import { ArrowUpRight, Zap, Target, Lock, PlayCircle, Plus, Settings } from 'lucide-react';
 import { useAgents } from '../../hooks/useAgents';
+import { CreateAgentModal } from '../Agents/CreateAgentModal';
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const performanceData = [
@@ -18,6 +20,8 @@ const performanceData = [
 ];
 
 export const Dashboard: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
   const { data: agentsQuery, isLoading } = useAgents();
   const agents = agentsQuery?.data || [];
 
@@ -31,7 +35,9 @@ export const Dashboard: React.FC = () => {
         </div>
         <div className="header-actions">
            <Button variant="primary" size="sm"><Lock size={14} /> View Audit Logs</Button>
-           <Button variant="primary" size="sm"><Zap size={14} /> New Agent</Button>
+           <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)}>
+             <Zap size={14} /> New Agent
+           </Button>
         </div>
       </div>
 
@@ -61,7 +67,9 @@ export const Dashboard: React.FC = () => {
               </Card>
               <Card variant="transparent" className="stat-card">
                  <div className="stat-label">Active Agents</div>
-                 <div className="stat-val">{agents.length}</div>
+                 <div className="stat-val">
+                   {isLoading ? <div className="skeleton-box shimmer" style={{ width: '40px', height: '24px' }} /> : agents.length}
+                 </div>
               </Card>
               <Card variant="transparent" className="stat-card">
                  <div className="stat-label">Pending Approvals</div>
@@ -104,7 +112,7 @@ export const Dashboard: React.FC = () => {
           <div className="agents-table-section">
             <div className="section-header">
               <h2>My Agents</h2>
-              <Button variant="primary" size="sm">View All</Button>
+              <Button variant="primary" size="sm" onClick={() => navigate('/agents')}>View All</Button>
             </div>
             <Card variant="default" className="agents-card" noPadding>
                <div style={{ overflowX: 'auto', width: '100%' }}>
@@ -113,19 +121,26 @@ export const Dashboard: React.FC = () => {
                      <tr>
                        <th>Agent Name</th>
                        <th>ID</th>
-                     <th>Status</th>
-                     <th>Limit</th>
-                     <th>Balance</th>
-                     <th>Actions</th>
-                   </tr>
-                 </thead>
-                 <tbody>
+                      <th>Status</th>
+                      <th>Limit</th>
+                      <th>Balance</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {isLoading && agents.length === 0 && (
-                      <tr>
-                        <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
-                          Syncing agents from ledger...
-                        </td>
-                      </tr>
+                      <>
+                        {[1, 2, 3].map((i) => (
+                          <tr key={i}>
+                            <td><div className="skeleton-box shimmer" style={{ width: '100px', height: '16px' }} /></td>
+                            <td><div className="skeleton-box shimmer" style={{ width: '120px', height: '12px' }} /></td>
+                            <td><div className="skeleton-box shimmer" style={{ width: '60px', height: '18px' }} /></td>
+                            <td><div className="skeleton-box shimmer" style={{ width: '80px', height: '16px' }} /></td>
+                            <td><div className="skeleton-box shimmer" style={{ width: '80px', height: '16px' }} /></td>
+                            <td><div className="skeleton-box shimmer" style={{ width: '70px', height: '24px' }} /></td>
+                          </tr>
+                        ))}
+                      </>
                     )}
                    {agents.map(agent => (
                      <tr key={agent.id}>
@@ -153,7 +168,7 @@ export const Dashboard: React.FC = () => {
                         </td>
                      </tr>
                    )}
-                 </tbody>
+                  </tbody>
                  </table>
                </div>
             </Card>
@@ -203,8 +218,12 @@ export const Dashboard: React.FC = () => {
             </Button>
           </div>
         </div>
-        
       </div>
+
+      <CreateAgentModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };
